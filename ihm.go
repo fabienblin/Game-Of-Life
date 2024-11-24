@@ -24,12 +24,15 @@ func initIHM() fyne.Window {
 	window := app.NewWindow("Game Of Life")
 	window.SetFullScreen(true)
 
+	imageContainer := initImageContainer(window)
+	refreshImageRoutine(imageContainer.Objects[0].(*canvas.Image))
+
 	rootContainer := container.NewBorder(
-		nil,                        // Top
-		initMenuContainer(window),  // Bottom (fixed menu)
-		nil,                        // Left
-		nil,                        // Right
-		initImageContainer(window), // Center (image taking available space)
+		nil,                       // Top
+		initMenuContainer(window), // Bottom (fixed menu)
+		nil,                       // Left
+		nil,                       // Right
+		imageContainer,            // Center (image taking available space)
 	)
 
 	window.SetContent(rootContainer)
@@ -38,7 +41,12 @@ func initIHM() fyne.Window {
 }
 
 func initImageContainer(window fyne.Window) *fyne.Container {
+	_ = window // ignore unused variable warning
 	imageCanvas := canvas.NewImageFromFile("grevious.png")
+	// rectangle := image.Rect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT)
+	// image := image.NewRGBA(rectangle)
+	// imageCanvas.NewImageFromImage(image)
+
 	imageCanvas.FillMode = canvas.ImageFillContain
 
 	imageContainer := container.NewStack(imageCanvas)

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"log"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -18,6 +19,23 @@ var _speedLabel binding.String = binding.NewString()
 var _modeLabel binding.String = binding.NewString()
 var _menuBackground *canvas.Rectangle = canvas.NewRectangle(getModeColor())
 
+type tappableImageWidget struct {
+	widget.Icon
+}
+
+func (ti *tappableImageWidget) Tapped(pointEvent *fyne.PointEvent) {
+	log.Printf("Image tapped at: %v", pointEvent.Position)
+}
+
+func newTappableImage(res fyne.Resource) *tappableImageWidget {
+	// image := canvas.NewImageFromResource(res)
+	widget := &tappableImageWidget{}
+	widget.ExtendBaseWidget(widget)
+	widget.SetResource(res)
+
+	return widget
+}
+
 func initIHM() fyne.Window {
 	app := app.New()
 
@@ -25,7 +43,7 @@ func initIHM() fyne.Window {
 	window.SetFullScreen(true)
 
 	imageContainer := initImageContainer(window)
-	refreshImageRoutine(imageContainer.Objects[0].(*canvas.Image))
+	// refreshImageRoutine(imageContainer.Objects[0].(*tappableImageWidget))
 
 	rootContainer := container.NewBorder(
 		nil,                       // Top
@@ -42,14 +60,15 @@ func initIHM() fyne.Window {
 
 func initImageContainer(window fyne.Window) *fyne.Container {
 	_ = window // ignore unused variable warning
-	imageCanvas := canvas.NewImageFromFile("grevious.png")
+	ressource, _ := fyne.LoadResourceFromPath("grevious.png")
+	// imageCanvas := canvas.NewImageFromResource(ressource)
+	imageWidget := newTappableImage(ressource)
 	// rectangle := image.Rect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT)
 	// image := image.NewRGBA(rectangle)
 	// imageCanvas.NewImageFromImage(image)
+	// imageCanvas.FillMode = canvas.ImageFillContain
 
-	imageCanvas.FillMode = canvas.ImageFillContain
-
-	imageContainer := container.NewStack(imageCanvas)
+	imageContainer := container.NewStack(imageWidget)
 
 	return imageContainer
 }

@@ -1,14 +1,10 @@
 package main
 
-import (
-	// "image"
-
-	"fyne.io/fyne/v2/canvas"
-)
+// "image"
 
 // refreshImage modifies the underlying RGBA image buffer and updates the canvas image.
-func refreshImageRoutine(imageCanvas *canvas.Image) {
-	go func(){
+func refreshImageRoutine(imageCanvas *tappableImageWidget) {
+	go func() {
 		// image := imageCanvas.Image.(*image.RGBA)
 
 		for {

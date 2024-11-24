@@ -1,7 +1,6 @@
 package main
 
 import (
-	"image"
 )
 
 type MODE int
@@ -30,13 +29,11 @@ const (
 
 var (
 	_mode MODE
-	_image *image.RGBA
 	_speed int
 )
 
 func init() {
 	onPause()
-	_image = image.NewRGBA(image.Rect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT))
 }
 
 func main() {

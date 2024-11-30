@@ -3,10 +3,8 @@ package main
 import (
 	"fmt"
 	"image/color"
-	"log"
 
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
@@ -19,31 +17,11 @@ var _speedLabel binding.String = binding.NewString()
 var _modeLabel binding.String = binding.NewString()
 var _menuBackground *canvas.Rectangle = canvas.NewRectangle(getModeColor())
 
-type tappableImageWidget struct {
-	widget.Icon
-}
-
-func (ti *tappableImageWidget) Tapped(pointEvent *fyne.PointEvent) {
-	log.Printf("Image tapped at: %v", pointEvent.Position)
-}
-
-func newTappableImage(res fyne.Resource) *tappableImageWidget {
-	// image := canvas.NewImageFromResource(res)
-	widget := &tappableImageWidget{}
-	widget.ExtendBaseWidget(widget)
-	widget.SetResource(res)
-
-	return widget
-}
-
-func initIHM() fyne.Window {
-	app := app.New()
-
+func initIHM(app fyne.App) fyne.Window {
 	window := app.NewWindow("Game Of Life")
 	window.SetFullScreen(true)
 
 	imageContainer := initImageContainer(window)
-	// refreshImageRoutine(imageContainer.Objects[0].(*tappableImageWidget))
 
 	rootContainer := container.NewBorder(
 		nil,                       // Top
@@ -60,13 +38,8 @@ func initIHM() fyne.Window {
 
 func initImageContainer(window fyne.Window) *fyne.Container {
 	_ = window // ignore unused variable warning
-	ressource, _ := fyne.LoadResourceFromPath("grevious.png")
-	// imageCanvas := canvas.NewImageFromResource(ressource)
-	imageWidget := newTappableImage(ressource)
-	// rectangle := image.Rect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT)
-	// image := image.NewRGBA(rectangle)
-	// imageCanvas.NewImageFromImage(image)
-	// imageCanvas.FillMode = canvas.ImageFillContain
+
+	imageWidget := newTappableImageWidget()
 
 	imageContainer := container.NewStack(imageWidget)
 
@@ -75,13 +48,13 @@ func initImageContainer(window fyne.Window) *fyne.Container {
 
 func initMenuContainer(window fyne.Window) *fyne.Container {
 	pauseButton := widget.NewButtonWithIcon("", theme.MediaPauseIcon(), func() {
-		onPause()
+		triggerPause()
 	})
 	playButton := widget.NewButtonWithIcon("", theme.MediaPlayIcon(), func() {
-		onPlay()
+		triggerPlay()
 	})
 	fastForwardButton := widget.NewButtonWithIcon("", theme.MediaFastForwardIcon(), func() {
-		onFastForward()
+		triggerFastForward()
 	})
 
 	buttonsContainer := container.NewHBox(
@@ -91,7 +64,7 @@ func initMenuContainer(window fyne.Window) *fyne.Container {
 	)
 
 	sizeWidget := widget.NewLabel(fmt.Sprintf("Size : %dx%d", IMAGE_WIDTH, IMAGE_HEIGHT))
-	updateBoundLabels()
+	updateAppState()
 	speedWidget := widget.NewLabelWithData(_speedLabel)
 	modeWidget := widget.NewLabelWithData(_modeLabel)
 
@@ -126,25 +99,30 @@ func getModeColor() color.NRGBA {
 	}
 }
 
-func onPause() {
+func triggerPause() {
 	_mode = EDIT
 	_speed = 0
-	updateBoundLabels()
+	updateAppState()
 }
 
-func onPlay() {
+func triggerPlay() {
 	_mode = RUN
 	_speed = 1
-	updateBoundLabels()
+	updateAppState()
 }
 
-func onFastForward() {
+func triggerFastForward() {
 	_mode = RUN
-	_speed *= 2
-	updateBoundLabels()
+	if _speed == 0 {
+		_speed = 1
+	}
+	if _speed < MAX_SPEED {
+		_speed *= 2
+	}
+	updateAppState()
 }
 
-func updateBoundLabels() {
+func updateAppState() {
 	_modeLabel.Set(_mode.String())
 	_speedLabel.Set(fmt.Sprintf("Speed : %d", _speed))
 

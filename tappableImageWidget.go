@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/widget"
+	"golang.org/x/image/draw"
 )
 
 var _tappableImage *tappableImageWidget
@@ -84,10 +85,10 @@ func (w *tappableImageWidget) CreateRenderer() fyne.WidgetRenderer {
 }
 
 func newTappableImageWidget() *tappableImageWidget {
-	// rectangle := image.Rect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT)
-	// m := image.NewRGBA(rectangle)
-	m := GenerateRandomImage(IMAGE_WIDTH, IMAGE_HEIGHT)
-
+	rectangle := image.Rect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT)
+	m := image.NewRGBA(rectangle)
+	draw.Draw(m, m.Bounds(), &image.Uniform{DEAD}, image.Point{0, 0}, draw.Src)
+	
 	imageCanvas := canvas.NewImageFromImage(m)
 	imageCanvas.FillMode = canvas.ImageFillContain
 	imageCanvas.ScaleMode = canvas.ImageScalePixels

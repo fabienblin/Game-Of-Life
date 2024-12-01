@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"image"
 	"time"
 )
 
@@ -14,13 +14,12 @@ func refreshImageRoutine() {
 				// edit mode logic
 				select {
 				case point := <-_tappableImage.tappChan:
-					_tappableImage.canvas.Image = GenerateRandomImage(IMAGE_WIDTH, IMAGE_HEIGHT)
-					log.Println(point)
+					editImage(_tappableImage.canvas.Image.(*image.RGBA), point)
 				default:
 				}
 			} else if _mode == RUN {
 				// run mode logic
-				_tappableImage.canvas.Image = GenerateRandomImage(IMAGE_WIDTH, IMAGE_HEIGHT)
+				runImage(_tappableImage.canvas.Image.(*image.RGBA))
 				time.Sleep(time.Second / time.Duration(_speed))
 			} else {
 				continue

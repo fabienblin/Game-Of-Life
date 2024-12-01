@@ -1,6 +1,8 @@
 package main
 
 import (
+	"image/color"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 )
@@ -24,7 +26,7 @@ func (m MODE) String() string {
 const (
 	IMAGE_RATIO_WIDTH  int = 1
 	IMAGE_RATIO_HEIGHT int = 1
-	IMAGE_RATIO_SIZE   int = 100
+	IMAGE_RATIO_SIZE   int = 50
 	IMAGE_WIDTH        int = IMAGE_RATIO_WIDTH * IMAGE_RATIO_SIZE
 	IMAGE_HEIGHT       int = IMAGE_RATIO_HEIGHT * IMAGE_RATIO_SIZE
 	MENU_HEIGHT        int = 30
@@ -32,6 +34,8 @@ const (
 )
 
 var (
+	ALIVE  color.RGBA = color.RGBA{255, 255, 255, 255}
+	DEAD   color.RGBA = color.RGBA{0, 0, 0, 255}
 	_mode  MODE
 	_speed int
 )

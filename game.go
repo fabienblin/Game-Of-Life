@@ -7,7 +7,7 @@ import (
 )
 
 func editImage(img *image.RGBA, point image.Point) {
-	if img.At(point.X, point.Y) == DEAD {
+	if isDeadCell(img, point) {
 		img.Set(point.X, point.Y, ALIVE)
 	} else {
 		img.Set(point.X, point.Y, DEAD)
@@ -20,9 +20,9 @@ func runImage(img *image.RGBA) {
 		for x := 0; x < IMAGE_WIDTH; x++ {
 			point := image.Point{X: x, Y: y}
 			nbNeighbors := countNeighbors(img, point)
-			if img.At(x, y) == ALIVE && (nbNeighbors < 2 || nbNeighbors > 3) {
+			if isLivingCell(img, point) && (nbNeighbors < 2 || nbNeighbors > 3) {
 				killCell(nextImage, point)
-			} else if img.At(x, y) == DEAD && (nbNeighbors == 3) {
+			} else if isDeadCell(img, point) && (nbNeighbors == 3) {
 				aliveCell(nextImage, point)
 			}
 		}
@@ -39,7 +39,8 @@ func countNeighbors(img *image.RGBA, point image.Point) int {
 				continue
 			}
 
-			if img.At(x + point.X, y + point.Y) == ALIVE {
+			point := image.Point{X: x + point.X, Y: y + point.Y}
+			if isLivingCell(img, point) {
 				count++
 			}
 		}
@@ -54,6 +55,14 @@ func aliveCell(img *image.RGBA, point image.Point) {
 
 func killCell(img *image.RGBA, point image.Point) {
 	img.Set(point.X, point.Y, DEAD)
+}
+
+func isDeadCell(img *image.RGBA, point image.Point) bool {
+	return img.At(point.X, point.Y) == DEAD
+}
+
+func isLivingCell(img *image.RGBA, point image.Point) bool {
+	return img.At(point.X, point.Y) == ALIVE
 }
 
 func copyImage(src *image.RGBA) *image.RGBA {

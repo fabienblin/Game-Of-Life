@@ -77,12 +77,32 @@ func initImageContainer(window fyne.Window) *fyne.Container {
 }
 
 func initMenuContainer(window fyne.Window) *fyne.Container {
+	_ihm.menuBackground.SetMinSize(fyne.NewSize(window.Content().Size().Width, float32(MENU_HEIGHT)))
+
+	menuContainer := container.NewStack(
+		_ihm.menuBackground,
+		container.NewHBox(
+			animationControlContainer(),
+			layout.NewSpacer(),
+			saveLoadContainer(),
+			layout.NewSpacer(),
+			statusContainer(),
+		),
+	)
+	menuContainer.Resize(fyne.NewSize(window.Content().Size().Width, float32(MENU_HEIGHT)))
+
+	return menuContainer
+}
+
+func animationControlContainer() *fyne.Container {
 	pauseButton := widget.NewButtonWithIcon("", theme.MediaPauseIcon(), func() {
 		triggerPause()
 	})
+
 	playButton := widget.NewButtonWithIcon("", theme.MediaPlayIcon(), func() {
 		triggerPlay()
 	})
+
 	fastForwardButton := widget.NewButtonWithIcon("", theme.MediaFastForwardIcon(), func() {
 		triggerFastForward()
 	})
@@ -93,29 +113,40 @@ func initMenuContainer(window fyne.Window) *fyne.Container {
 		fastForwardButton,
 	)
 
+	return buttonsContainer
+}
+
+func saveLoadContainer() *fyne.Container {
+	saveInputWidget := widget.NewEntry()
+	saveInputWidget.SetPlaceHolder("file name")
+
+	saveImageFileButton := widget.NewButton("Save", func() {
+		triggerSaveImage(saveInputWidget)
+	})
+
+	loadSelectWidget := newDynamicSelect(findGOLimages, triggerLoadImage)
+
+	saveLoadContainer := container.NewGridWithColumns(3,
+		saveImageFileButton,
+		saveInputWidget,
+		loadSelectWidget,
+	)
+
+	return saveLoadContainer
+}
+
+func statusContainer() *fyne.Container {
 	sizeWidget := widget.NewLabel(fmt.Sprintf("Size : %dx%d", IMAGE_WIDTH, IMAGE_HEIGHT))
 	speedWidget := widget.NewLabelWithData(_ihm.speedLabel)
 	modeWidget := widget.NewLabelWithData(_ihm.modeLabel)
 
-	textsContainer := container.NewHBox(
+	statusContainer := container.NewHBox(
 		sizeWidget,
 		speedWidget,
 		modeWidget,
 	)
 
-	_ihm.menuBackground.SetMinSize(fyne.NewSize(window.Content().Size().Width, float32(MENU_HEIGHT)))
-
-	menuContainer := container.NewStack(
-		_ihm.menuBackground,
-		container.NewHBox(
-			buttonsContainer,
-			layout.NewSpacer(),
-			textsContainer,
-		),
-	)
-	menuContainer.Resize(fyne.NewSize(window.Content().Size().Width, float32(MENU_HEIGHT)))
-
-	return menuContainer
+	return statusContainer
 }
 
 func getModeColor() color.NRGBA {

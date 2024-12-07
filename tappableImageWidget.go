@@ -14,12 +14,12 @@ var _tappableImage *tappableImageWidget
 type tappableImageWidget struct {
 	widget.BaseWidget
 
-	canvas *canvas.Image
+	canvas   *canvas.Image
 	tappChan chan image.Point
 }
 
 func (w *tappableImageWidget) Tapped(pointEvent *fyne.PointEvent) {
-	if _mode != EDIT {
+	if _ihm.mode != EDIT {
 		return
 	}
 	// Get the widget size (image container size)

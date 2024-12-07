@@ -10,7 +10,7 @@ func refreshImageRoutine() {
 	go func() {
 		// image := _tappableImage.canvas.Image.(*image.RGBA)
 		for {
-			if _mode == EDIT {
+			if _ihm.mode == EDIT {
 				// edit mode logic
 				select {
 				case point := <-_tappableImage.tappChan:
@@ -18,15 +18,14 @@ func refreshImageRoutine() {
 					log.Println(point)
 				default:
 				}
-			} else if _mode == RUN {
+			} else if _ihm.mode == RUN {
 				// run mode logic
 				_tappableImage.canvas.Image = GenerateRandomImage(IMAGE_WIDTH, IMAGE_HEIGHT)
-				time.Sleep(time.Second / time.Duration(_speed))
+				time.Sleep(time.Second / time.Duration(_ihm.speed))
 			} else {
 				continue
 			}
 
-			
 			_tappableImage.Refresh()
 		}
 	}()

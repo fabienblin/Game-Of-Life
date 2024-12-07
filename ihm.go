@@ -13,9 +13,31 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-var _speedLabel binding.String = binding.NewString()
-var _modeLabel binding.String = binding.NewString()
-var _menuBackground *canvas.Rectangle = canvas.NewRectangle(getModeColor())
+type MODE int
+
+const (
+	EDIT MODE = iota
+	RUN
+)
+
+func (m MODE) String() string {
+	switch m {
+	case EDIT:
+		return "EDITION"
+	default:
+		return "RUNNING"
+	}
+}
+
+type ihm struct {
+	speedLabel     binding.String
+	modeLabel      binding.String
+	menuBackground *canvas.Rectangle
+	mode           MODE
+	speed          int
+}
+
+var _ihm ihm
 
 func initIHM(app fyne.App) fyne.Window {
 	window := app.NewWindow("Game Of Life")
@@ -32,6 +54,12 @@ func initIHM(app fyne.App) fyne.Window {
 	)
 
 	window.SetContent(rootContainer)
+
+	_ihm = ihm{
+		speedLabel:     binding.NewString(),
+		modeLabel:      binding.NewString(),
+		menuBackground: canvas.NewRectangle(getModeColor()),
+	}
 
 	return window
 }
@@ -65,8 +93,8 @@ func initMenuContainer(window fyne.Window) *fyne.Container {
 
 	sizeWidget := widget.NewLabel(fmt.Sprintf("Size : %dx%d", IMAGE_WIDTH, IMAGE_HEIGHT))
 	updateAppState()
-	speedWidget := widget.NewLabelWithData(_speedLabel)
-	modeWidget := widget.NewLabelWithData(_modeLabel)
+	speedWidget := widget.NewLabelWithData(_ihm.speedLabel)
+	modeWidget := widget.NewLabelWithData(_ihm.modeLabel)
 
 	textsContainer := container.NewHBox(
 		sizeWidget,
@@ -74,10 +102,10 @@ func initMenuContainer(window fyne.Window) *fyne.Container {
 		modeWidget,
 	)
 
-	_menuBackground.SetMinSize(fyne.NewSize(window.Content().Size().Width, float32(MENU_HEIGHT)))
+	_ihm.menuBackground.SetMinSize(fyne.NewSize(window.Content().Size().Width, float32(MENU_HEIGHT)))
 
 	menuContainer := container.NewStack(
-		_menuBackground,
+		_ihm.menuBackground,
 		container.NewHBox(
 			buttonsContainer,
 			layout.NewSpacer(),
@@ -90,9 +118,9 @@ func initMenuContainer(window fyne.Window) *fyne.Container {
 }
 
 func getModeColor() color.NRGBA {
-	if _mode == RUN {
+	if _ihm.mode == RUN {
 		return color.NRGBA{R: 20, G: 150, B: 40, A: 255}
-	} else if _mode == EDIT {
+	} else if _ihm.mode == EDIT {
 		return color.NRGBA{R: 20, G: 40, B: 150, A: 255}
 	} else {
 		return color.NRGBA{R: 0, G: 0, B: 0, A: 0}
@@ -100,35 +128,35 @@ func getModeColor() color.NRGBA {
 }
 
 func triggerPause() {
-	_mode = EDIT
-	_speed = 0
+	_ihm.mode = EDIT
+	_ihm.speed = 0
 	updateAppState()
 }
 
 func triggerPlay() {
-	_mode = RUN
-	_speed = 1
+	_ihm.mode = RUN
+	_ihm.speed = 1
 	updateAppState()
 }
 
 func triggerFastForward() {
-	_mode = RUN
-	if _speed == 0 {
-		_speed = 1
+	_ihm.mode = RUN
+	if _ihm.speed == 0 {
+		_ihm.speed = 1
 	}
-	if _speed < MAX_SPEED {
-		_speed *= 2
+	if _ihm.speed < MAX_SPEED {
+		_ihm.speed *= 2
 	}
 	updateAppState()
 }
 
 func updateAppState() {
-	_modeLabel.Set(_mode.String())
-	_speedLabel.Set(fmt.Sprintf("Speed : %d", _speed))
+	_ihm.modeLabel.Set(_ihm.mode.String())
+	_ihm.speedLabel.Set(fmt.Sprintf("Speed : %d", _ihm.speed))
 
-	if _menuBackground == nil {
+	if _ihm.menuBackground == nil {
 		return
 	}
-	_menuBackground.FillColor = getModeColor()
-	_menuBackground.Refresh()
+	_ihm.menuBackground.FillColor = getModeColor()
+	_ihm.menuBackground.Refresh()
 }

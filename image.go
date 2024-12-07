@@ -15,6 +15,7 @@ func refreshImageRoutine() {
 				select {
 				case point := <-_tappableImage.tappChan:
 					editImage(_tappableImage.canvas.Image.(*image.RGBA), point)
+					editImage(_tappableImage.canvas.Image.(*image.RGBA), point)
 				default:
 				}
 			} else if _ihm.mode == RUN {

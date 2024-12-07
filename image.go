@@ -13,19 +13,19 @@ func refreshImageRoutine() {
 			if _ihm.mode == EDIT {
 				// edit mode logic
 				select {
-				case point := <-_tappableImage.tappChan:
-					editImage(_tappableImage.canvas.Image.(*image.RGBA), point)
+				case point := <-_ihm.tappChan:
+					editImage(_ihm.tappableImage.Canvas.Image.(*image.RGBA), point)
 				default:
 				}
 			} else if _ihm.mode == RUN {
 				// run mode logic
-				runImage(_tappableImage.canvas.Image.(*image.RGBA))
+				runImage(_ihm.tappableImage.Canvas.Image.(*image.RGBA))
 				time.Sleep(time.Second / time.Duration(_ihm.speed))
 			} else {
 				continue
 			}
 
-			_tappableImage.Refresh()
+			_ihm.tappableImage.Refresh()
 		}
 	}()
 }

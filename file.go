@@ -24,7 +24,7 @@ func triggerSaveImage(saveInputWidget *widget.Entry) {
 		log.Fatal(err)
 	}
 
-	if err := png.Encode(f, _tappableImage.canvas.Image); err != nil {
+	if err := png.Encode(f, _ihm.tappableImage.Canvas.Image); err != nil {
 		f.Close()
 		log.Fatal(err)
 	}
@@ -47,7 +47,7 @@ func triggerLoadImage(fileName string) {
 		log.Fatal(err)
 	}
 
-	_tappableImage.canvas.Image = img
+	_ihm.tappableImage.Canvas.Image = img
 }
 
 func findGOLimages() []string {

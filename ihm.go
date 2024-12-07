@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"image"
 	"image/color"
+	"log"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -11,6 +13,8 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/fabienblin/fynitude"
+	"golang.org/x/image/draw"
 )
 
 type MODE int
@@ -35,6 +39,8 @@ type ihm struct {
 	menuBackground *canvas.Rectangle
 	mode           MODE
 	speed          int
+	tappableImage  *fynitude.TappableImageWidget
+	tappChan       chan image.Point
 }
 
 var _ihm ihm
@@ -47,6 +53,7 @@ func initIHM(app fyne.App) fyne.Window {
 		speedLabel:     binding.NewString(),
 		modeLabel:      binding.NewString(),
 		menuBackground: canvas.NewRectangle(getModeColor()),
+		tappChan:       make(chan image.Point),
 	}
 
 	imageContainer := initImageContainer(window)
@@ -69,11 +76,67 @@ func initIHM(app fyne.App) fyne.Window {
 func initImageContainer(window fyne.Window) *fyne.Container {
 	_ = window // ignore unused variable warning
 
-	imageWidget := newTappableImageWidget()
+	rectangle := image.Rect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT)
+	img := image.NewRGBA(rectangle)
+	draw.Draw(img, img.Bounds(), &image.Uniform{DEAD}, image.Point{0, 0}, draw.Src)
 
-	imageContainer := container.NewStack(imageWidget)
+	imageWidget := fynitude.NewTappableImageWidget(img, nil)
+	imageWidget.Tapp = func(pointEvent *fyne.PointEvent) {
+		if _ihm.mode != EDIT {
+			return
+		}
+		widgetSize := imageWidget.Size()
 
-	return imageContainer
+		imageBounds := imageWidget.Canvas.Image.Bounds()
+		imageWidth := imageBounds.Dx()
+		imageHeight := imageBounds.Dy()
+
+		scaleX := float64(widgetSize.Width) / float64(imageWidth)
+		scaleY := float64(widgetSize.Height) / float64(imageHeight)
+
+		scale := scaleX
+		if scaleY < scaleX {
+			scale = scaleY
+		}
+
+		renderedWidth := float32(float64(imageWidth) * scale)
+		renderedHeight := float32(float64(imageHeight) * scale)
+
+		offsetX := (widgetSize.Width - renderedWidth) / 2
+		offsetY := (widgetSize.Height - renderedHeight) / 2
+
+		adjustedX := pointEvent.Position.X - offsetX
+		adjustedY := pointEvent.Position.Y - offsetY
+
+		if adjustedX < 0 || adjustedX >= renderedWidth || adjustedY < 0 || adjustedY >= renderedHeight {
+			log.Println("Tapped outside the image bounds")
+			return
+		}
+
+		tappedX := int(float64(adjustedX) / scale)
+		tappedY := int(float64(adjustedY) / scale)
+
+		if tappedX < 0 || tappedX >= imageWidth || tappedY < 0 || tappedY >= imageHeight {
+			log.Println("Tapped outside the image pixel grid")
+			return
+		}
+
+		log.Printf("Image tapped at pixel: (%d, %d)", tappedX, tappedY)
+
+		if rgbaImage, ok := imageWidget.Canvas.Image.(*image.RGBA); ok {
+			color := rgbaImage.At(tappedX, tappedY)
+			log.Printf("Pixel color: %v", color)
+		}
+
+		_ihm.tappChan <- image.Point{X: tappedX, Y: tappedY}
+	}
+
+	imageWidget.Canvas.FillMode = canvas.ImageFillContain
+	imageWidget.Canvas.ScaleMode = canvas.ImageScalePixels
+
+	_ihm.tappableImage = imageWidget
+
+	return container.NewStack(imageWidget)
 }
 
 func initMenuContainer(window fyne.Window) *fyne.Container {
@@ -124,7 +187,7 @@ func saveLoadContainer() *fyne.Container {
 		triggerSaveImage(saveInputWidget)
 	})
 
-	loadSelectWidget := newDynamicSelect(findGOLimages, triggerLoadImage)
+	loadSelectWidget := fynitude.NewDynamicSelectWidget(findGOLimages, triggerLoadImage)
 
 	saveLoadContainer := container.NewGridWithColumns(3,
 		saveImageFileButton,

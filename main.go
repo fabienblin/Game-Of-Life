@@ -15,10 +15,6 @@ const (
 	MAX_SPEED          int = 2 * 2 * 2 * 2 // must be a power of 2 for triggerFastForward()
 )
 
-func init() {
-	
-}
-
 func main() {
 	app := app.New()
 	window := initIHM(app)

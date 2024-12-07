@@ -2,9 +2,16 @@ package main
 
 import (
 	"image"
+	"image/color"
 
 	"golang.org/x/image/draw"
 )
+
+var (
+	ALIVE  color.RGBA = color.RGBA{255, 255, 255, 255}
+	DEAD   color.RGBA = color.RGBA{0, 0, 0, 255}
+)
+
 
 func editImage(img *image.RGBA, point image.Point) {
 	if isDeadCell(img, point) {

@@ -1,8 +1,6 @@
 package main
 
 import (
-	"image/color"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 )
@@ -15,11 +13,6 @@ const (
 	IMAGE_HEIGHT       int = IMAGE_RATIO_HEIGHT * IMAGE_RATIO_SIZE
 	MENU_HEIGHT        int = 30
 	MAX_SPEED          int = 2 * 2 * 2 * 2 // must be a power of 2 for triggerFastForward()
-)
-
-var (
-	ALIVE  color.RGBA = color.RGBA{255, 255, 255, 255}
-	DEAD   color.RGBA = color.RGBA{0, 0, 0, 255}
 )
 
 func init() {

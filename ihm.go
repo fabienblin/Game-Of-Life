@@ -43,23 +43,25 @@ func initIHM(app fyne.App) fyne.Window {
 	window := app.NewWindow("Game Of Life")
 	window.SetFullScreen(true)
 
-	imageContainer := initImageContainer(window)
-
-	rootContainer := container.NewBorder(
-		nil,                       // Top
-		initMenuContainer(window), // Bottom (fixed menu)
-		nil,                       // Left
-		nil,                       // Right
-		imageContainer,            // Center (image taking available space)
-	)
-
-	window.SetContent(rootContainer)
-
 	_ihm = ihm{
 		speedLabel:     binding.NewString(),
 		modeLabel:      binding.NewString(),
 		menuBackground: canvas.NewRectangle(getModeColor()),
 	}
+
+	imageContainer := initImageContainer(window)
+	menuContainer := initMenuContainer(window)
+
+	rootContainer := container.NewBorder(
+		nil,            // Top
+		menuContainer,  // Bottom (fixed menu)
+		nil,            // Left
+		nil,            // Right
+		imageContainer, // Center (image taking available space)
+	)
+
+	window.SetContent(rootContainer)
+	triggerPause()
 
 	return window
 }
@@ -92,7 +94,6 @@ func initMenuContainer(window fyne.Window) *fyne.Container {
 	)
 
 	sizeWidget := widget.NewLabel(fmt.Sprintf("Size : %dx%d", IMAGE_WIDTH, IMAGE_HEIGHT))
-	updateAppState()
 	speedWidget := widget.NewLabelWithData(_ihm.speedLabel)
 	modeWidget := widget.NewLabelWithData(_ihm.modeLabel)
 

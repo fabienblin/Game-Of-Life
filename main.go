@@ -16,7 +16,7 @@ const (
 )
 
 func init() {
-	triggerPause()
+	
 }
 
 func main() {
